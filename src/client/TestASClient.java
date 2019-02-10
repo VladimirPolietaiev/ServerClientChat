@@ -17,68 +17,68 @@ public class TestASClient {
      */
     public static void main(String[] args) throws InterruptedException {
 
-// запускаем подключение сокета по известным координатам и нициализируем приём сообщений с консоли клиента
+// çàïóñêàåì ïîäêëþ÷åíèå ñîêåòà ïî èçâåñòíûì êîîðäèíàòàì è íèöèàëèçèðóåì ïðè¸ì ñîîáùåíèé ñ êîíñîëè êëèåíòà
         try(Socket socket = new Socket("localhost", 3345);
             BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
             DataOutputStream oos = new DataOutputStream(socket.getOutputStream());
-            DataInputStream ois = new DataInputStream(socket.getInputStream()); )
+            DataInputStream ois = new DataInputStream(socket.getInputStream());	)
         {
 
             System.out.println("Client connected to socket.");
             System.out.println();
             System.out.println("Client writing channel = oos & reading channel = ois initialized.");
 
-// проверяем живой ли канал и работаем если живой
+// ïðîâåðÿåì æèâîé ëè êàíàë è ðàáîòàåì åñëè òðó
             while(!socket.isOutputShutdown()){
 
-// ждём консоли клиента на предмет появления в ней данных
+// æä¸ì êîíñîëè êëèåíòà íà ïðåäìåò ïîÿâëåíèÿ â íåé äàííûõ
                 if(br.ready()){
 
-// данные появились - работаем
+// äàííûå ïîÿâèëèñü - ðàáîòàåì
                     System.out.println("Client start writing in channel...");
                     Thread.sleep(1000);
                     String clientCommand = br.readLine();
 
-// пишем данные с консоли в канал сокета для сервера
+// ïèøåì äàííûå ñ êîíñîëè â êàíàë ñîêåòà äëÿ ñåðâåðà
                     oos.writeUTF(clientCommand);
                     oos.flush();
                     System.out.println("Clien sent message " + clientCommand + " to server.");
                     Thread.sleep(1000);
-// ждём чтобы сервер успел прочесть сообщение из сокета и ответить
+// æä¸ì ÷òîáû ñåðâåð óñïåë ïðî÷åñòü ñîîáùåíèå èç ñîêåòà è îòâåòèòü
 
-// проверяем условие выхода из соединения
+// ïðîâåðÿåì óñëîâèå âûõîäà èç ñîåäèíåíèÿ
                     if(clientCommand.equalsIgnoreCase("quit")){
 
-// если условие выхода достигнуто разъединяемся
+// åñëè óñëîâèå âûõîäà äîñòèãíóòî ðàçúåäèíÿåìñÿ
                         System.out.println("Client kill connections");
                         Thread.sleep(2000);
 
-// смотрим что нам ответил сервер на последок перед закрытием ресурсов
-                        if(ois.read() > -1)     {
+// ñìîòðèì ÷òî íàì îòâåòèë ñåðâåð íà ïîñëåäîê
+                        if(ois.available()!=0)		{
                             System.out.println("reading...");
                             String in = ois.readUTF();
                             System.out.println(in);
                         }
 
-// после предварительных приготовлений выходим из цикла записи чтения
+// ïîñëå ïðåäâàðèòåëüíûõ ïðèãîòîâëåíèé âûõîäèì èç öèêëà çàïèñè ÷òåíèÿ
                         break;
                     }
 
-// если условие разъединения не достигнуто продолжаем работу
-                    System.out.println("Client sent message & start waiting for data from server...");
+// åñëè óñëîâèå ðàçúåäèíåíèÿ íå äîñòèãíóòî ïðîäîëæàåì ðàáîòó
+                    System.out.println("Client wrote & start waiting for data from server...");
                     Thread.sleep(2000);
 
-// проверяем, что нам ответит сервер на сообщение(за предоставленное ему время в паузе он должен был успеть ответить)
-                    if(ois.read() > -1)     {
+// ïðîâåðÿåì, ÷òî íàì îòâåòèò ñåðâåð íà ñîîáùåíèå(çà ïðåäîñòàâëåííîå åìó âðåìÿ â ïàóçå îí äîëæåí áûë óñïåòü îòâåòèòü
+                    if(ois.available()!=0)		{
 
-// если успел забираем ответ из канала сервера в сокете и сохраняем её в ois переменную,  печатаем на свою клиентскую консоль
+// åñëè óñïåë çàáèðàåì îòâåò èç êàíàëà ñåðâåðà â ñîêåòå è ñîõðàíÿåìå¸ â ois ïåðåìåííóþ,  ïå÷àòàåì íà êîíñîëü
                         System.out.println("reading...");
                         String in = ois.readUTF();
                         System.out.println(in);
                     }
                 }
             }
-// на выходе из цикла общения закрываем свои ресурсы
+
             System.out.println("Closing connections & channels on clentSide - DONE.");
 
         } catch (UnknownHostException e) {

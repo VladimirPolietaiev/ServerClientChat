@@ -8,30 +8,31 @@ import java.net.Socket;
 
 public class TestAsServer {
 
+
     /**
      *
      * @param args
      * @throws InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
-//  стартуем сервер на порту 3345
+//	стартуем сервер на порту 3345
 
-        try (ServerSocket server= new ServerSocket(3345)){
+        try	(ServerSocket server= new ServerSocket(3345);){
 // становимся в ожидание подключения к сокету под именем - "client" на серверной стороне
             Socket client = server.accept();
 
 // после хэндшейкинга сервер ассоциирует подключающегося клиента с этим сокетом-соединением
             System.out.print("Connection accepted.");
 
-// инициируем каналы для  общения в сокете, для сервера
-
-// канал записи в сокет
-            DataOutputStream out = new DataOutputStream(client.getOutputStream());
-            System.out.println("DataOutputStream  created");
+// инициируем каналы общения в сокете, для сервера
 
             // канал чтения из сокета
             DataInputStream in = new DataInputStream(client.getInputStream());
             System.out.println("DataInputStream created");
+
+            // канал записи в сокет
+            DataOutputStream out = new DataOutputStream(client.getOutputStream());
+            System.out.println("DataOutputStream  created");
 
 // начинаем диалог с подключенным клиентом в цикле, пока сокет не закрыт
             while(!client.isClosed()){
@@ -47,20 +48,19 @@ public class TestAsServer {
 // и выводит в консоль
                 System.out.println("Server try writing to channel");
 
-// инициализация проверки условия продолжения работы с клиентом по этому сокету по кодовому слову       - quit
+// инициализация проверки условия продолжения работы с клиентом по этому сокету	по кодовому слову
                 if(entry.equalsIgnoreCase("quit")){
                     System.out.println("Client initialize connections suicide ...");
                     out.writeUTF("Server reply - "+entry + " - OK");
-                    out.flush();
                     Thread.sleep(3000);
                     break;
                 }
 
-// если условие окончания работы не верно - продолжаем работу - отправляем эхо-ответ  обратно клиенту
+// если условие окончания работы не верно - продолжаем работу - отправляем эхо обратно клиенту
                 out.writeUTF("Server reply - "+entry + " - OK");
                 System.out.println("Server Wrote message to client.");
 
-// освобождаем буфер сетевых сообщений (по умолчанию сообщение не сразу отправляется в сеть, а сначала накапливается в специальном буфере сообщений, размер которого определяется конкретными настройками в системе, а метод  - flush() отправляет сообщение не дожидаясь наполнения буфера согласно настройкам системы
+// освобождаем буфер сетевых сообщений
                 out.flush();
 
             }
@@ -73,13 +73,13 @@ public class TestAsServer {
             in.close();
             out.close();
 
-            // потом закрываем сам сокет общения на стороне сервера!
+            // потом закрываем сокет общения на стороне сервера!
             client.close();
 
             // потом закрываем сокет сервера который создаёт сокеты общения
             // хотя при многопоточном применении его закрывать не нужно
             // для возможности поставить этот серверный сокет обратно в ожидание нового подключения
-
+            server.close();
             System.out.println("Closing connections & channels - DONE.");
         } catch (IOException e) {
             e.printStackTrace();
